@@ -40,7 +40,7 @@ jobs:
         ls publish
         cd publish
         zip -r ../${{ env.project }} *
-        Ls
+        ls
 
     - name: List dir
       run: |
