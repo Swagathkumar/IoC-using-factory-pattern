@@ -1,0 +1,72 @@
+name: build-and-deploy
+
+on:
+    pull_request:
+    push:
+      branches:
+        - main
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+  
+    env:
+      solution: ConsoleApp2.sln
+      buildConfiguration: Release
+      artifactName: IoC-using-factory-pattern
+      project: IoC-using-factory-pattern
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '6.0.x'
+
+
+    - name: display dotnet version
+      run: dotnet --version
+
+    - name: Restore dependencies
+      run: dotnet restore ${{ env.solution }}
+
+    - name: Build application
+      run: dotnet build ${{ env.solution }} --configuration ${{ env.buildConfiguration }}
+
+    - name: Publish artifact
+      run: |
+        dotnet publish -c ${{ env.buildConfiguration }} -o ./publish
+        ls publish
+        cd publish
+        zip -r ../${{ env.project }} *
+        Ls
+
+    - name: List dir
+      run: |
+        ls
+        dir
+        pwd
+        
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        # Artifact name
+        name: ${{ env.artifactName }}
+        # Destination path
+        path: ./publish
+
+    # - name: SCP into EC2 instance
+    #   run: |
+    #     ls
+    #     sshpass -p '${{ secrets.EC2_PASSWORD }}' scp -o StrictHostKeyChecking=no -r ./${{ env.project }}.zip ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:${{ secrets.EC2_DEV_DESTINATION_PATH }}
+    #     sshpass -p '${{ secrets.EC2_PASSWORD }}' ssh -T ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} <<EOF
+    #     dir
+    #     cd ${{ secrets.EC2_DEV_DESTINATION_PATH }}
+    #     tar -xf ${{ env.project }}.zip
+    #     del ${{ env.project }}.zip
+    #     iisreset /restart
+    #     EOF
+
+
+
