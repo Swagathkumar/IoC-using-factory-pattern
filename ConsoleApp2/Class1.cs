@@ -11,6 +11,7 @@ namespace ConsoleApp2
         {
             public Employee GetEmployeeDetails(int id)
             {
+                Console.WriteLine("hello");
                 // In real-time get the employee details from db
                 //but here we are hard coded the employee details
                 Employee emp = new Employee()
